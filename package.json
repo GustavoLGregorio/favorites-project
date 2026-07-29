@@ -2,30 +2,35 @@
   "name": "favorites-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Favorites - Media Tracking & Discovery Platform Monorepo",
+  "description": "Favorites - Media Tracking & Discovery Platform Monorepo Orchestrator",
   "workspaces": [
     "frontend",
     "workers",
     "api"
   ],
   "scripts": {
+    "dev": "bun run dev:frontend",
+    "build": "bun run build:frontend",
+    "lint": "bun run lint:frontend",
+    "test": "bun run test:frontend",
     "dev:frontend": "cd frontend && bun dev",
-    "dev:api": "dotnet watch run --project api/src/Favorites.Api/Favorites.Api.csproj",
-    "dev:workers": "cd workers && bun dev",
     "build:frontend": "cd frontend && bun run build",
+    "lint:frontend": "cd frontend && bun run lint",
+    "test:frontend": "cd frontend && bun run test",
+    "dev:api": "dotnet watch run --project api/src/Favorites.Api/Favorites.Api.csproj",
     "build:api": "dotnet build api/Favorites.sln --configuration Release",
+    "test:api": "dotnet test api/Favorites.sln",
+    "dev:workers": "cd workers && bun dev",
     "build:workers": "cd workers && bun run build",
+    "test:workers": "cd workers && bun test",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "docker:clean": "docker compose down -v --remove-orphans",
-    "test:frontend": "cd frontend && bun test",
-    "test:api": "dotnet test api/Favorites.sln",
-    "test:workers": "cd workers && bun test"
+    "docker:clean": "docker compose down -v --remove-orphans"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "typescript": "^7.0.0"
+    "typescript": "^5.7.2"
   },
   "engines": {
     "bun": ">=1.2.0",

@@ -40,7 +40,6 @@ export const UserProfileButton: React.FC = () => {
         className="flex items-center gap-3 p-1.5 pr-4 rounded-full bg-stone-900/70 border border-stone-800/80 hover:border-amber-500/40 hover:bg-stone-800/80 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50 cursor-pointer backdrop-blur-md"
       >
         {user.avatarUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={user.avatarUrl}
             alt={user.name}
