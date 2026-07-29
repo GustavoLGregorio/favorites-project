@@ -10,7 +10,8 @@ public class DapperContext
 
     public DapperContext(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection") 
+        _connectionString = configuration["DB_CONNECTION_STRING"]
+            ?? configuration.GetConnectionString("DefaultConnection") 
             ?? "Host=localhost;Database=favorites;Username=postgres;Password=postgres";
     }
 

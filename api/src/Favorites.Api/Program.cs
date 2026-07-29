@@ -20,22 +20,41 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS
+// Configure CORS for Local, Vercel & Staging Deployments
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (allowedOrigins is not null && allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.SetIsOriginAllowed(_ => true)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
 // Configure JWT Authentication
-var jwtSecret = builder.Configuration["Jwt:SecretKey"] ?? "SUPER_SECRET_FALLBACK_KEY_AT_LEAST_32_BYTES_LONG_FAVORITES_API";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "FavoritesApi";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "FavoritesClient";
+var jwtSecret = builder.Configuration["JWT_SECRET_KEY"] 
+    ?? builder.Configuration["Jwt:SecretKey"] 
+    ?? "8249088b60d6bec2f354e9ae0c725ea66ca650b396a2f5015a0d41a8b0a4860d";
+var jwtIssuer = builder.Configuration["JWT_ISSUER"] 
+    ?? builder.Configuration["Jwt:Issuer"] 
+    ?? "FavoritesApi";
+var jwtAudience = builder.Configuration["JWT_AUDIENCE"] 
+    ?? builder.Configuration["Jwt:Audience"] 
+    ?? "FavoritesClient";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -68,7 +87,8 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// Enable Swagger in Development and Staging
+if (app.Environment.IsDevelopment() || string.Equals(builder.Configuration["ENABLE_SWAGGER"], "true", StringComparison.OrdinalIgnoreCase))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
