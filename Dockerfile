@@ -24,8 +24,16 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 10000
 
+# Default Runtime Dummy Variables (Override via Environment Variables on deployment platform)
 ENV ASPNETCORE_HTTP_PORTS=8080
 ENV ENABLE_SWAGGER=true
+ENV DB_CONNECTION_STRING="Host=localhost;Database=favorites;Username=postgres;Password=postgres"
+ENV Authentication__Google__ClientId="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+ENV Authentication__Google__ClientSecret="YOUR_GOOGLE_CLIENT_SECRET"
+ENV JWT_SECRET_KEY="YOUR_SUPER_SECRET_JWT_KEY_AT_LEAST_32_BYTES"
+ENV JWT_ISSUER="FavoritesApi"
+ENV JWT_AUDIENCE="FavoritesClient"
+ENV JWT_EXPIRATION_MINUTES="1440"
 
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "Favorites.Api.dll"]
