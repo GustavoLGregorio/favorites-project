@@ -1,147 +1,127 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Film, BookOpen, Gamepad2, Tv, Sparkles, Filter } from 'lucide-react';
-import { queryKeys } from '@/constants/query-keys';
-import { mediaService } from '@/api/client';
+import Link from 'next/link';
+import { Sparkles, Film, Gamepad2, BookOpen, Tv, ArrowRight, ShieldCheck, Layers, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
-import { MediaShelf } from '@/components/lists/media-shelf';
-import { MediaCard } from '@/components/media/media-card';
+import { GoogleLoginButton } from '@/components/auth/google-login-button';
 import { Button } from '@/components/ui/button';
-import type { MediaItem } from '@/api/mock-data';
 
-export default function HomePage() {
-  const [activeFilter, setActiveFilter] = React.useState<'all' | 'in_progress' | 'completed' | 'planning'>('all');
-  const { user } = useAuth();
-
-  const { data: mediaItems = [], isLoading } = useQuery({
-    queryKey: queryKeys.media.list(activeFilter),
-    queryFn: () => mediaService.getMediaItems(),
-  });
-
-  const handleQuickLog = (item: MediaItem) => {
-    alert(`Logged progress for "${item.title}"! (+1 ${item.progress.unit})`);
-  };
-
-  const filteredItems = React.useMemo(() => {
-    if (activeFilter === 'all') return mediaItems;
-    return mediaItems.filter((item) => item.status === activeFilter);
-  }, [mediaItems, activeFilter]);
-
-  const animeItems = filteredItems.filter((item) => item.mediaType === 'anime');
-  const bookItems = filteredItems.filter((item) => item.mediaType === 'book' || item.mediaType === 'manga');
-  const gameItems = filteredItems.filter((item) => item.mediaType === 'game');
-  const showItems = filteredItems.filter((item) => item.mediaType === 'movie' || item.mediaType === 'series');
+export default function LandingPage() {
+  const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="space-y-8 pb-16">
-      {/* Hero Welcome & Filter Bar */}
-      <div className="bg-[#121622] border border-[#263044] rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-[#0B0E14]/50">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FB3DB5]/15 text-[#FB3DB5] text-xs font-semibold border border-[#FB3DB5]/30 mb-3">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>User Dashboard</span>
+    <div className="space-y-20 pb-20 pt-6">
+      {/* Hero Section */}
+      <section className="relative text-center max-w-4xl mx-auto space-y-8">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FB3DB5]/15 text-[#FB3DB5] text-xs sm:text-sm font-semibold border border-[#FB3DB5]/30 backdrop-blur-md shadow-lg shadow-[#FB3DB5]/10 animate-fade-in">
+          <Sparkles className="h-4 w-4" />
+          <span>Unified Media Aggregator Platform</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+          All Your <span className="text-[#FB3DB5]">Favorites.</span>
+          <br />
+          One Central Library.
+        </h1>
+
+        <p className="text-lg sm:text-xl text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
+          Track anime, movies, series, books, and games in one place. Connect your external accounts or use Favorites as your clean, unified hub.
+        </p>
+
+        {/* CTA Area */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          {isAuthenticated ? (
+            <Link href="/home">
+              <Button variant="magenta" size="lg" className="rounded-2xl px-8 py-3.5 text-base font-bold">
+                <span>Access Dashboard</span>
+                <ArrowRight className="h-5 w-5 ml-1" />
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <GoogleLoginButton
+                variant="magenta"
+                size="lg"
+                label="Continuar com o Google"
+                className="rounded-2xl px-8 py-3.5 text-base font-bold shadow-xl shadow-[#FB3DB5]/25"
+              />
+              <span className="text-xs text-[#94A3B8]">Fast & secure OAuth 2.0 authentication. No password needed.</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Media Type Cards Showcase */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-[#121622]/80 border border-[#263044] rounded-3xl p-6 flex flex-col items-center text-center space-y-3 hover:border-[#FB3DB5]/50 transition-all duration-300 group shadow-lg">
+          <div className="h-12 w-12 rounded-2xl bg-[#FB3DB5]/15 text-[#FB3DB5] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Film className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Welcome back, <span className="text-[#FB3DB5]">{user ? user.name : 'Guest'}</span>
-          </h1>
-          <p className="text-sm text-[#94A3B8] mt-1">
-            {user
-              ? `Tracking ${mediaItems.length} active entries across your personal media library.`
-              : 'Sign in with Google to sync your media library and track movies, anime, books, and games.'}
+          <h3 className="text-base sm:text-lg font-bold text-white">Anime</h3>
+          <p className="text-xs sm:text-sm text-[#94A3B8]">MyAnimeList, AniList & Kitsu sync.</p>
+        </div>
+
+        <div className="bg-[#121622]/80 border border-[#263044] rounded-3xl p-6 flex flex-col items-center text-center space-y-3 hover:border-[#FB3DB5]/50 transition-all duration-300 group shadow-lg">
+          <div className="h-12 w-12 rounded-2xl bg-[#FB3DB5]/15 text-[#FB3DB5] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Tv className="h-6 w-6" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-white">Movies & Series</h3>
+          <p className="text-xs sm:text-sm text-[#94A3B8]">TMDB & Trakt integration.</p>
+        </div>
+
+        <div className="bg-[#121622]/80 border border-[#263044] rounded-3xl p-6 flex flex-col items-center text-center space-y-3 hover:border-[#FB3DB5]/50 transition-all duration-300 group shadow-lg">
+          <div className="h-12 w-12 rounded-2xl bg-[#FB3DB5]/15 text-[#FB3DB5] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Gamepad2 className="h-6 w-6" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-white">Games</h3>
+          <p className="text-xs sm:text-sm text-[#94A3B8]">IGDB & Steam backlog tracking.</p>
+        </div>
+
+        <div className="bg-[#121622]/80 border border-[#263044] rounded-3xl p-6 flex flex-col items-center text-center space-y-3 hover:border-[#FB3DB5]/50 transition-all duration-300 group shadow-lg">
+          <div className="h-12 w-12 rounded-2xl bg-[#FB3DB5]/15 text-[#FB3DB5] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <BookOpen className="h-6 w-6" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-white">Books & Manga</h3>
+          <p className="text-xs sm:text-sm text-[#94A3B8]">OpenLibrary & MangaDex progress.</p>
+        </div>
+      </section>
+
+      {/* Feature Highlights Grid */}
+      <section className="bg-[#121622] border border-[#263044] rounded-3xl p-8 sm:p-12 space-y-8 shadow-2xl">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Built as an API Aggregator</h2>
+          <p className="text-sm text-[#94A3B8]">
+            We do not store proprietary media metadata. We aggregate public APIs cleanly and link your accounts conveniently.
           </p>
         </div>
 
-        {/* Status Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-          <Filter className="h-4 w-4 text-[#94A3B8] mr-1 hidden sm:block" />
-          <Button
-            variant={activeFilter === 'all' ? 'magenta' : 'silver'}
-            size="sm"
-            onClick={() => setActiveFilter('all')}
-          >
-            All Entries ({mediaItems.length})
-          </Button>
-          <Button
-            variant={activeFilter === 'in_progress' ? 'magenta' : 'silver'}
-            size="sm"
-            onClick={() => setActiveFilter('in_progress')}
-          >
-            In Progress
-          </Button>
-          <Button
-            variant={activeFilter === 'completed' ? 'magenta' : 'silver'}
-            size="sm"
-            onClick={() => setActiveFilter('completed')}
-          >
-            Completed
-          </Button>
-          <Button
-            variant={activeFilter === 'planning' ? 'magenta' : 'silver'}
-            size="sm"
-            onClick={() => setActiveFilter('planning')}
-          >
-            Planning
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+          <div className="space-y-3 p-4 rounded-2xl bg-[#0B0E14]/50 border border-[#263044]/60">
+            <ShieldCheck className="h-7 w-7 text-[#FB3DB5]" />
+            <h4 className="text-base font-bold text-white">Google OAuth 2.0 Auth</h4>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              One-click secure login powered by Google Identity Services. Your profile data is stored safely in PostgreSQL.
+            </p>
+          </div>
+
+          <div className="space-y-3 p-4 rounded-2xl bg-[#0B0E14]/50 border border-[#263044]/60">
+            <Layers className="h-7 w-7 text-[#FB3DB5]" />
+            <h4 className="text-base font-bold text-white">API Centralization</h4>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              Connect external services or use Favorites as a central hub for all your entertainment libraries.
+            </p>
+          </div>
+
+          <div className="space-y-3 p-4 rounded-2xl bg-[#0B0E14]/50 border border-[#263044]/60">
+            <ExternalLink className="h-7 w-7 text-[#FB3DB5]" />
+            <h4 className="text-base font-bold text-white">Personal & Public Shelves</h4>
+            <p className="text-xs text-[#94A3B8] leading-relaxed">
+              Curate custom lists, rate entries, and share your favorite collections with the community.
+            </p>
+          </div>
         </div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 rounded-full border-2 border-[#FB3DB5] border-t-transparent animate-spin" />
-        </div>
-      ) : (
-        <>
-          {/* Shelf 1: Anime in Progress */}
-          {animeItems.length > 0 && (
-            <MediaShelf title="Anime in Progress" count={animeItems.length} icon={<Film className="h-4 w-4" />}>
-              <MediaShelf.Grid>
-                {animeItems.map((item) => (
-                  <MediaCard key={item.id} item={item} onLogProgress={handleQuickLog} />
-                ))}
-              </MediaShelf.Grid>
-            </MediaShelf>
-          )}
-
-          {/* Shelf 2: Manga & Books in Progress */}
-          {bookItems.length > 0 && (
-            <MediaShelf
-              title="Manga & Books in Progress"
-              count={bookItems.length}
-              icon={<BookOpen className="h-4 w-4" />}
-            >
-              <MediaShelf.Grid>
-                {bookItems.map((item) => (
-                  <MediaCard key={item.id} item={item} onLogProgress={handleQuickLog} />
-                ))}
-              </MediaShelf.Grid>
-            </MediaShelf>
-          )}
-
-          {/* Shelf 3: Games in Progress */}
-          {gameItems.length > 0 && (
-            <MediaShelf title="Games in Progress" count={gameItems.length} icon={<Gamepad2 className="h-4 w-4" />}>
-              <MediaShelf.Grid>
-                {gameItems.map((item) => (
-                  <MediaCard key={item.id} item={item} onLogProgress={handleQuickLog} />
-                ))}
-              </MediaShelf.Grid>
-            </MediaShelf>
-          )}
-
-          {/* Shelf 4: Movies & Series in Progress */}
-          {showItems.length > 0 && (
-            <MediaShelf title="Movies & Series in Progress" count={showItems.length} icon={<Tv className="h-4 w-4" />}>
-              <MediaShelf.Grid>
-                {showItems.map((item) => (
-                  <MediaCard key={item.id} item={item} onLogProgress={handleQuickLog} />
-                ))}
-              </MediaShelf.Grid>
-            </MediaShelf>
-          )}
-        </>
-      )}
+      </section>
     </div>
   );
 }

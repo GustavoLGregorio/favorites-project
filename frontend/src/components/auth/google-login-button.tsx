@@ -15,6 +15,8 @@ const googleButtonVariants = cva(
           'bg-stone-900/60 backdrop-blur-md text-stone-100 border border-stone-800/80 hover:bg-stone-800/80 hover:border-amber-500/30 shadow-lg',
         outline:
           'bg-transparent text-stone-200 border border-stone-700 hover:bg-stone-800/50 hover:text-stone-100',
+        magenta:
+          'bg-[#FB3DB5] text-white hover:bg-[#E0269D] shadow-lg shadow-[#FB3DB5]/30 hover:shadow-[#FB3DB5]/50 border border-[#FB3DB5]',
       },
       size: {
         sm: 'px-3 py-1.5 text-xs',
@@ -33,6 +35,7 @@ interface GoogleLoginButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof googleButtonVariants> {
   onSuccess?: () => void;
+  label?: string;
 }
 
 export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
@@ -40,6 +43,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
   size,
   className,
   onSuccess,
+  label = 'Sign in with Google',
   ...props
 }) => {
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -47,7 +51,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
 
   const clientId =
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-    'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+    '89326112938-587ishv4nv11p6i7uf6v2efeicq0nh8s.apps.googleusercontent.com';
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.google) return;
@@ -56,8 +60,10 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       window.google.accounts.id.initialize({
         client_id: clientId,
         callback: (response) => {
-          handleCredentialResponse(response.credential);
-          onSuccess?.();
+          if (response.credential) {
+            handleCredentialResponse(response.credential);
+            onSuccess?.();
+          }
         },
       });
 
@@ -74,11 +80,19 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
     }
   }, [clientId, handleCredentialResponse, onSuccess]);
 
-  const handleFallbackClick = () => {
-    // For local dev / demonstration without active client_id credentials:
-    const mockToken = 'mock_google_id_token_' + Date.now();
-    handleCredentialResponse(mockToken);
-    onSuccess?.();
+  const handleOAuthLogin = () => {
+    if (typeof window === 'undefined') return;
+
+    // Standard Google OAuth 2.0 Redirect URL Flow
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.append('client_id', clientId);
+    url.searchParams.append('redirect_uri', redirectUri);
+    url.searchParams.append('response_type', 'id_token');
+    url.searchParams.append('scope', 'openid email profile');
+    url.searchParams.append('nonce', Math.random().toString(36).substring(2));
+
+    window.location.href = url.toString();
   };
 
   return (
@@ -86,13 +100,13 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
       <div ref={buttonRef} className="hidden" />
       <button
         type="button"
-        onClick={handleFallbackClick}
+        onClick={handleOAuthLogin}
         disabled={isLoading}
         aria-label="Sign in with Google"
         className={googleButtonVariants({ variant, size, className })}
         {...props}
       >
-        <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
           <path
             fill="#4285F4"
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -110,7 +124,7 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
           />
         </svg>
-        <span>{isLoading ? 'Connecting...' : 'Sign in with Google'}</span>
+        <span>{isLoading ? 'Connecting...' : label}</span>
       </button>
 
       {authError && (
