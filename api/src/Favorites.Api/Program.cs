@@ -80,12 +80,26 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Au
 builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddTransient<DatabaseInitializer>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// Auto-initialize Database Schema (Tables & Indexes)
+try
+{
+    using var scope = app.Services.CreateScope();
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+    await dbInitializer.InitializeAsync();
+    Log.Information("Database schema initialized successfully.");
+}
+catch (Exception ex)
+{
+    Log.Error(ex, "An error occurred while initializing the database schema.");
+}
 
 // Enable Swagger in Development and Staging
 if (app.Environment.IsDevelopment() || string.Equals(builder.Configuration["ENABLE_SWAGGER"], "true", StringComparison.OrdinalIgnoreCase))
