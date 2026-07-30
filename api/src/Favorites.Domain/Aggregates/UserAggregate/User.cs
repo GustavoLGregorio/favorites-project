@@ -15,6 +15,14 @@ public class User : AggregateRoot<Guid>
 
     public IReadOnlyCollection<LinkedAccount> LinkedAccounts => _linkedAccounts.AsReadOnly();
 
+    // Parameterless constructor required for Dapper ORM materialization
+    private User() : base(Guid.Empty)
+    {
+        GoogleId = string.Empty;
+        Email = string.Empty;
+        Name = string.Empty;
+    }
+
     private User(Guid id, string googleId, string email, string name, string? avatarUrl) : base(id)
     {
         GoogleId = googleId;

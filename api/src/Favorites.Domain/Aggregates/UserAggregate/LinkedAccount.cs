@@ -13,6 +13,11 @@ public class LinkedAccount : Entity<Guid>
     public DateTime CreatedAtUtc { get; private set; }
     public DateTime UpdatedAtUtc { get; private set; }
 
+    // Parameterless constructor required for Dapper ORM materialization
+    private LinkedAccount() : base(Guid.Empty)
+    {
+    }
+
     private LinkedAccount(
         Guid id,
         Guid userId,
