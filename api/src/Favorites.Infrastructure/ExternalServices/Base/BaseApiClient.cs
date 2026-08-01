@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 
 namespace Favorites.Infrastructure.ExternalServices.Base;
@@ -11,7 +12,8 @@ public abstract class BaseApiClient
     protected static readonly JsonSerializerOptions DefaultJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     protected BaseApiClient(HttpClient httpClient, ILogger logger)

@@ -38,50 +38,80 @@ public class AniListApiClient : BaseApiClient, IExternalMediaProvider
             _ => null
         };
 
-        const string graphQLQuery = """
-            query ($search: String, $type: MediaType, $page: Int, $perPage: Int) {
-              Page(page: $page, perPage: $perPage) {
-                media(search: $search, type: $type, sort: [POPULARITY_DESC, SCORE_DESC]) {
-                  id
-                  type
-                  format
-                  status
-                  episodes
-                  chapters
-                  volumes
-                  description
-                  startDate {
-                    year
-                  }
-                  averageScore
-                  genres
-                  title {
-                    romaji
-                    english
-                    native
-                  }
-                  coverImage {
-                    extraLarge
-                    large
-                    medium
-                  }
-                  bannerImage
-                }
-              }
-            }
-            """;
-
-        var payload = new
+        object payload;
+        if (!string.IsNullOrEmpty(aniListType))
         {
-            query = graphQLQuery,
-            variables = new
+            const string queryWithType = """
+                query ($search: String, $type: MediaType, $page: Int, $perPage: Int) {
+                  Page(page: $page, perPage: $perPage) {
+                    media(search: $search, type: $type, sort: [POPULARITY_DESC, SCORE_DESC]) {
+                      id
+                      type
+                      format
+                      status
+                      episodes
+                      chapters
+                      volumes
+                      description
+                      startDate { year }
+                      averageScore
+                      genres
+                      title { romaji english native }
+                      coverImage { extraLarge large medium }
+                      bannerImage
+                    }
+                  }
+                }
+                """;
+
+            payload = new
             {
-                search = query,
-                type = aniListType,
-                page,
-                perPage = pageSize
-            }
-        };
+                query = queryWithType,
+                variables = new
+                {
+                    search = query,
+                    type = aniListType,
+                    page,
+                    perPage = pageSize
+                }
+            };
+        }
+        else
+        {
+            const string queryWithoutType = """
+                query ($search: String, $page: Int, $perPage: Int) {
+                  Page(page: $page, perPage: $perPage) {
+                    media(search: $search, sort: [POPULARITY_DESC, SCORE_DESC]) {
+                      id
+                      type
+                      format
+                      status
+                      episodes
+                      chapters
+                      volumes
+                      description
+                      startDate { year }
+                      averageScore
+                      genres
+                      title { romaji english native }
+                      coverImage { extraLarge large medium }
+                      bannerImage
+                    }
+                  }
+                }
+                """;
+
+            payload = new
+            {
+                query = queryWithoutType,
+                variables = new
+                {
+                    search = query,
+                    page,
+                    perPage = pageSize
+                }
+            };
+        }
 
         var response = await PostJsonAsync<object, AniListGraphQLResponse>(
             AniListGraphQLEndpoint,
