@@ -2,7 +2,7 @@ import { apiClient } from './client';
 
 export interface MediaSearchResult {
   externalId: string;
-  provider: number; // ServiceProvider enum (1 = AniList)
+  provider: string; // String Enum name ("anilist", "tmdb", etc.)
   title: string;
   nativeTitle?: string;
   description?: string;

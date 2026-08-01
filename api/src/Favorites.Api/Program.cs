@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Favorites.Api.Middleware;
 using Favorites.Application.Auth.Commands;
 using Favorites.Application.Common.Interfaces;
@@ -18,7 +20,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Serilog Global Logger
 SerilogConfiguration.ConfigureSerilog(builder);
 
-builder.Services.AddControllers();
+// Configure Controllers and String Enum JSON Serialization
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
