@@ -7,5 +7,8 @@ public enum ServiceProvider
     Steam = 2,
     Trakt = 3,
     Spotify = 4,
-    Goodreads = 5
+    Goodreads = 5,
+    TMDB = 6,
+    IGDB = 7,
+    OpenLibrary = 8
 }

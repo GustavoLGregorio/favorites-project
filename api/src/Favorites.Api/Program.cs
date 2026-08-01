@@ -4,6 +4,8 @@ using Favorites.Application.Auth.Commands;
 using Favorites.Application.Common.Interfaces;
 using Favorites.Domain.Repositories;
 using Favorites.Infrastructure.Auth;
+using Favorites.Infrastructure.ExternalServices;
+using Favorites.Infrastructure.ExternalServices.AniList;
 using Favorites.Infrastructure.Logging;
 using Favorites.Infrastructure.Persistence;
 using Favorites.Infrastructure.Persistence.Repositories;
@@ -83,6 +85,11 @@ builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddTransient<DatabaseInitializer>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Register External API Clients & Media Search Aggregator
+builder.Services.AddHttpClient<AniListApiClient>();
+builder.Services.AddTransient<IExternalMediaProvider, AniListApiClient>();
+builder.Services.AddTransient<IMediaSearchAggregator, MediaSearchAggregator>();
 
 var app = builder.Build();
 
