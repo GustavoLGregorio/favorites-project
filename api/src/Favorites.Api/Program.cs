@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Favorites.Api.Middleware;
 using Favorites.Application.Auth.Commands;
 using Favorites.Application.Common.Interfaces;
+using Favorites.Domain.Aggregates.UserAggregate;
 using Favorites.Domain.Repositories;
 using Favorites.Infrastructure.Auth;
 using Favorites.Infrastructure.ExternalServices;
@@ -20,11 +21,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Serilog Global Logger
 SerilogConfiguration.ConfigureSerilog(builder);
 
-// Configure Controllers and String Enum JSON Serialization
+// Configure Controllers with snake_case Naming Policy & Lowercase Provider Enum Serialization
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        options.JsonSerializerOptions.Converters.Add(new ServiceProviderJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower));
     });
 
 builder.Services.AddEndpointsApiExplorer();

@@ -1,18 +1,18 @@
 import { apiClient } from './client';
 
 export interface MediaSearchResult {
-  externalId: string;
-  provider: string; // String Enum name ("anilist", "tmdb", etc.)
+  external_id: string;
+  provider: string; // Lowercase string enum ("anilist", "tmdb", etc.)
   title: string;
-  nativeTitle?: string;
+  native_title?: string;
   description?: string;
-  coverImageUrl?: string;
-  bannerImageUrl?: string;
-  mediaType: string;
-  releaseYear?: number;
-  averageScore?: number;
+  cover_image_url?: string;
+  banner_image_url?: string;
+  media_type: string;
+  release_year?: number;
+  average_score?: number;
   genres: string[];
-  episodesOrChaptersCount?: number;
+  episodes_or_chapters_count?: number;
 }
 
 export const mediaApi = {

@@ -53,7 +53,7 @@ export function Navbar() {
   };
 
   const getMediaIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch ((type || '').toLowerCase()) {
       case 'anime':
         return <Film className="h-3.5 w-3.5 text-[#FB3DB5]" />;
       case 'manga':
@@ -111,7 +111,7 @@ export function Navbar() {
             <div className="absolute top-12 left-0 right-0 bg-[#121622]/95 backdrop-blur-xl border border-[#263044] rounded-2xl shadow-2xl overflow-hidden max-h-[450px] overflow-y-auto z-50 divide-y divide-[#263044]/50 animate-fade-in">
               <div className="p-2.5 bg-[#0B0E14]/60 text-xs font-semibold text-[#94A3B8] flex items-center justify-between">
                 <span>API Aggregated Search Results</span>
-                {isFetching && <span className="text-[#FB3DB5]">Fetching AniList API...</span>}
+                {isFetching && <span className="text-[#FB3DB5]">Fetching external APIs...</span>}
               </div>
 
               {isFetching && searchResults.length === 0 ? (
@@ -130,7 +130,7 @@ export function Navbar() {
               ) : (
                 searchResults.map((item) => (
                   <div
-                    key={`${item.provider}-${item.externalId}`}
+                    key={`${item.provider}-${item.external_id}`}
                     className="p-3 hover:bg-[#1C2333] transition-colors flex items-center gap-3.5 group cursor-pointer"
                     onClick={() => {
                       setIsOpen(false);
@@ -138,9 +138,9 @@ export function Navbar() {
                   >
                     {/* Media Cover Thumbnail */}
                     <div className="h-14 w-10 shrink-0 relative rounded-lg overflow-hidden bg-[#0B0E14] border border-[#263044]">
-                      {item.coverImageUrl ? (
+                      {item.cover_image_url ? (
                         <Image
-                          src={item.coverImageUrl}
+                          src={item.cover_image_url}
                           alt={item.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform"
@@ -149,7 +149,7 @@ export function Navbar() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[#94A3B8]">
-                          {getMediaIcon(item.mediaType)}
+                          {getMediaIcon(item.media_type)}
                         </div>
                       )}
                     </div>
@@ -158,14 +158,14 @@ export function Navbar() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#263044]/60 text-[10px] font-bold text-white uppercase tracking-wider">
-                          {getMediaIcon(item.mediaType)}
-                          <span>{item.mediaType}</span>
+                          {getMediaIcon(item.media_type)}
+                          <span>{item.media_type}</span>
                         </span>
-                        {item.releaseYear && (
-                          <span className="text-xs text-[#94A3B8]">{item.releaseYear}</span>
+                        {item.release_year && (
+                          <span className="text-xs text-[#94A3B8]">{item.release_year}</span>
                         )}
-                        <span className="ml-auto text-[10px] font-semibold text-[#FB3DB5] bg-[#FB3DB5]/10 px-1.5 py-0.5 rounded border border-[#FB3DB5]/20">
-                          AniList API
+                        <span className="ml-auto text-[10px] font-semibold text-[#FB3DB5] bg-[#FB3DB5]/10 px-1.5 py-0.5 rounded border border-[#FB3DB5]/20 uppercase">
+                          {item.provider}
                         </span>
                       </div>
 
@@ -173,8 +173,8 @@ export function Navbar() {
                         {item.title}
                       </h4>
 
-                      {item.nativeTitle && item.nativeTitle !== item.title && (
-                        <p className="text-xs text-[#94A3B8] truncate">{item.nativeTitle}</p>
+                      {item.native_title && item.native_title !== item.title && (
+                        <p className="text-xs text-[#94A3B8] truncate">{item.native_title}</p>
                       )}
 
                       {item.genres && item.genres.length > 0 && (
@@ -185,10 +185,10 @@ export function Navbar() {
                     </div>
 
                     {/* Rating Badge */}
-                    {item.averageScore && (
+                    {item.average_score && (
                       <div className="shrink-0 flex items-center gap-1 px-2 py-1 rounded-xl bg-[#0B0E14] border border-[#263044] text-xs font-bold text-amber-400">
                         <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                        <span>{item.averageScore}</span>
+                        <span>{item.average_score}</span>
                       </div>
                     )}
                   </div>
